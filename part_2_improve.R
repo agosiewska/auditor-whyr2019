@@ -111,9 +111,12 @@ plotD3_residual(mr_lm, mr_rf, variable = "scars", smooth = TRUE, scale_plot = TR
 # 2. Try to use this knowledge to improve `glm` model (and call it `mp_lm_impr`).
 # 3. Show your solution on a radar plot (together with previously created models).
 
-
-
-
+# Solution:
+plotD3_residual(mr_lm, mr_rf, variable = "year_of_birth", smooth = TRUE, scale_plot = TRUE)
+model_lm_impr <- lm(y_train ~ . + I(year_of_birth > 500 & year_of_birth < 1500), data = X_train)
+exp_lm_impr <- explain(model_lm_impr, data = X_test, y = y_test, label = "lm_impr")
+mp_lm_impr <- model_performance(exp_lm_impr, score = scores)
+plot_radar(mp_lm, mp_rf, mp_svm, mp_lm_impr)
 
 
 
@@ -168,11 +171,48 @@ plot_residual_density(mr_rf_valid, mr_lm_valid) +
 # Task 2 --------------------------------------------------------------------------------------
 
 # 1. Explore residuals and look for strange patterns.
+# Solution:
+plot_residual(mr_rf_valid, mr_lm_valid, variable = "height")
+
 
 
 # 2. What can we do to again improve linear model? Before creating new models combine `dragons` and 
 # `dragons_test` data sets and split it into trainig and testing subsets.
+dragons_all <- rbind(dragons, dragons_test)
+
+X <- subset(dragons_all, select = -life_length)
+y <- dragons_all$life_length
+
+set.seed(14)
+nd <- nrow(X)
+obs <- sample(1:nd, 0.85 * nd)
+X_train <- X[obs, ]
+X_test <- X[-obs, ]
+y_train <- y[obs]
+y_test <- y[-obs]
 
 
 
+# Solution:
+# add squared height and indicator whether height is under 100
+model_lm_all <- lm(y_train ~ . +
+                     I(year_of_birth > 500 & year_of_birth < 1500) + 
+                     I(height < 100), 
+                   data = X_train)
+exp_lm_all <- explain(model_lm_all, data = X_test, y = y_test)
+mr_lm_all <- model_residual(exp_lm_all)
+
+plot_prediction(mr_lm_all)
+plot_prediction(mr_lm_valid)
+
+# lets compare it with random forest
+model_rf_all <- randomForest(y_train ~ ., data = X_train)
+exp_rf_all <- explain(model_rf_all, data = X_test, y = y_test)
+mr_rf_all <- model_residual(exp_rf_all)
+plot_prediction(mr_lm_all, mr_rf_all)
+
+mp_rf_all <- model_performance(exp_rf_all)
+mp_lm_all <- model_performance(exp_lm_all)
+
+plot_radar(mp_lm_all, mp_rf_all)
 

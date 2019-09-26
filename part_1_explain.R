@@ -61,10 +61,14 @@ exp_rf <- explain(wine_rf, data = X_test, y = y_test)
 #    You can find instructions how to create explainers for other models (like mlr, caret etc.) in DALEX repository:
 #    https://github.com/ModelOriented/DALEX#dalex-show-cases
 
+# Solution
 
-
-
-
+# my_fun <- function(model, data){
+#   pred <- predict(model, newdata = data, probability = TRUE)
+#   attr(pred, "probabilities")[,1]
+# }
+# exp_glm <- explain(wine_glm, data = X_test, y = y_test, predict_function = my_fun)
+exp_glm <- explain(wine_glm, data = X_test, y = y_test)
 
 
 # auditing ------------------------------------------------------------------------------------
@@ -139,8 +143,10 @@ plot(cp_rf) +
 # Check how other models bahave for the choosen observation (create local explanations plots)
 
 
-
-
+# solution
+cp_glm <- ceteris_paribus(exp_glm, new_observation = observation)
+plot(cp_glm) +
+  show_observations(cp_glm)
 
 
 
@@ -176,8 +182,6 @@ plotD3(la_rf)
 
 # Check how other model behave for the choosen and for few other observations
 
-
-
-
-
-
+# solution
+la_glm <- local_attributions(exp_glm, new_observation = observation)
+plot(la_glm)
