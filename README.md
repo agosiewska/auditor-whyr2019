@@ -2,7 +2,7 @@
 
 Workshop on `auditor` and `DALEX` ([WhyR2019](https://github.com/WhyR2019))
 
-Authors: Alicja Gosiewska, Tomasz Mikołajczyk ([MI2 Data Lab](http://mi2.mini.pw.edu.pl))
+Authors: Alicja Gosiewska, Tomasz Mikołajczyk ([MI2 Data Lab](https://mi2-warsaw.github.io))
 
 ## Description
 
