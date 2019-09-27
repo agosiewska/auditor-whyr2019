@@ -108,12 +108,13 @@ plotD3_residual(mr_lm, mr_rf, variable = "scars", smooth = TRUE, scale_plot = TR
 # Task 1 --------------------------------------------------------------------------------------
 
 # 1. Explore other variables of the data set for more potential problems. 
-# 2. Try to use this knowledge to improve `glm` model (and call it `mp_lm_impr`).
+# 2. Try to use this knowledge to improve `lm` model (and call it `mp_lm_impr`).
 # 3. Show your solution on a radar plot (together with previously created models).
 
-# Solution:
-plotD3_residual(mr_lm, mr_rf, variable = "year_of_birth", smooth = TRUE, scale_plot = TRUE)
+plot_residual(mr_lm, mr_rf, variable = "year_of_birth", smooth = TRUE)
+
 model_lm_impr <- lm(y_train ~ . + I(year_of_birth > 500 & year_of_birth < 1500), data = X_train)
+
 exp_lm_impr <- explain(model_lm_impr, data = X_test, y = y_test, label = "lm_impr")
 mp_lm_impr <- model_performance(exp_lm_impr, score = scores)
 plot_radar(mp_lm, mp_rf, mp_svm, mp_lm_impr)
@@ -158,9 +159,10 @@ plotD3_prediction(mr_rf_valid, mr_lm_valid, scale_plot = TRUE)
 plot_residual_density(mr_rf_valid, mr_lm_valid)
 
 # as objects are ggplot, we can work with them in gg way
+library(ggplot2)
 plot_residual_density(mr_rf_valid, mr_lm_valid) + 
-  ggplot2::scale_y_sqrt() +
-  ggplot2::theme_minimal() + 
+  scale_y_sqrt() +
+  theme_minimal() + 
   scale_fill_manual(name = "", 
                     values = c("red", "green"), 
                     labels = c("Random forest (validation)", "Linear regression (validation)")) +
@@ -171,13 +173,15 @@ plot_residual_density(mr_rf_valid, mr_lm_valid) +
 # Task 2 --------------------------------------------------------------------------------------
 
 # 1. Explore residuals and look for strange patterns.
-# Solution:
+
 plot_residual(mr_rf_valid, mr_lm_valid, variable = "height")
+plot_residual(mr_rf_valid, mr_lm_valid, variable = "weight")
 
+# 2. What can we do to again improve linear model? 
+# Before creating new models combine `dragons` and 
+# `dragons_test` data sets and split it into trainig 
+# and testing subsets.
 
-
-# 2. What can we do to again improve linear model? Before creating new models combine `dragons` and 
-# `dragons_test` data sets and split it into trainig and testing subsets.
 dragons_all <- rbind(dragons, dragons_test)
 
 X <- subset(dragons_all, select = -life_length)
@@ -190,6 +194,20 @@ X_train <- X[obs, ]
 X_test <- X[-obs, ]
 y_train <- y[obs]
 y_test <- y[-obs]
+
+
+
+
+
+
+
+
+# Solution:
+
+
+
+
+
 
 
 
