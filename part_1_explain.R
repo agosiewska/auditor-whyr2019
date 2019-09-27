@@ -57,14 +57,17 @@ exp_rf <- explain(wine_rf, data = X_test, y = y_test)
 # Task 1 --------------------------------------------------------------------------------------
 
 # 1. Train third model of your choice (eg. svm, classification tree, etc.) 
+
+library(rpart)
+wine_rpart <- rpart(y_train~., X_train)
+
+
 # 2. Create DALEX's explainers for glm (and call it `exp_glm`) model and the one that you have created
 #    You can find instructions how to create explainers for other models (like mlr, caret etc.) in DALEX repository:
 #    https://github.com/ModelOriented/DALEX#dalex-show-cases
+exp_glm <- explain(wine_glm, data = X_test, y = y_test)
 
-
-
-
-
+exp_rpart <- explain(wine_rpart, data=X_test, y = y_test)
 
 
 # auditing ------------------------------------------------------------------------------------
@@ -75,26 +78,29 @@ library(auditor)
 # one of the advantages of using `auditor` is set of implemented scores which you can easily apply onto your model; e.g.: 
 score_auc(exp_rf)
 score_auc(exp_glm) # this one will work if you have created `exp_glm` by yourself
-
+score_auc(exp_rpart)
 
 # one can also compare several models across several scores:
 scores <- c("one_minus_auc", "one_minus_precision", "one_minus_recall", "one_minus_f1", "one_minus_acc")
 mp_rf  <- model_performance(exp_rf, score = scores)
 mp_glm <- model_performance(exp_glm, score = scores)
-plot_radar(mp_rf, mp_glm)
+mp_rpart <- model_performance(exp_rpart, score = scores)
+plot_radar(mp_rf, mp_glm, mp_rpart)
 
 
 # Now let's evaluate classifiers 
 me_rf  <- model_evaluation(exp_rf)
 me_glm <- model_evaluation(exp_glm)
+me_rpart <- model_evaluation(exp_rpart)
 
 # ROC
-plot_roc(me_rf, me_glm)
+plot_roc(me_rf, me_glm, me_rpart)
+plotD3_roc(me_rf, me_glm, me_rpart)
 
 
 # LIFT
-plot_lift(me_rf, me_glm)
-plotD3_lift(me_glm, me_rf, scale_plot = TRUE)
+plot_lift(me_rf, me_glm, me_rpart)
+plotD3_lift(me_glm, me_rf, me_rpart, scale_plot = TRUE)
 
 
 
@@ -113,9 +119,10 @@ fi_glm <- feature_importance(exp_glm, loss_function = loss_one_minus_auc, B = 20
 plot(fi_glm, max_vars = 5)
 plotD3(fi_glm, max_vars = 5)
 
+plot(fi_glm)
 
 # partial dependency plots
-var <- "alcohol" 
+var <- "pH" 
 pd_rf <- partial_dependency(exp_rf, grid_points = 100, variables = var)
 pd_glm <- partial_dependency(exp_glm, grid_points = 100, variables = var)
 plot(pd_rf, pd_glm)
@@ -136,11 +143,13 @@ plot(cp_rf) +
 
 # Task 2 --------------------------------------------------------------------------------------
 
-# Check how other models bahave for the choosen observation (create local explanations plots)
+# Check how other models behave for the choosen observation (create local explanations plots)
 
 
-
-
+# solution
+cp_glm <- ceteris_paribus(exp_glm, new_observation = observation)
+plot(cp_glm) +
+  show_observations(cp_glm)
 
 
 
@@ -167,7 +176,7 @@ library(iBreakDown)
 
 la_rf <- local_attributions(exp_rf, new_observation = observation)
 plot(la_rf)
-plotD3(la_rf)
+plotD3(la_rf, time = 1000)
 
 
 
@@ -176,8 +185,6 @@ plotD3(la_rf)
 
 # Check how other model behave for the choosen and for few other observations
 
-
-
-
-
-
+# solution
+la_glm <- local_attributions(exp_glm, new_observation = observation)
+plot(la_glm)
